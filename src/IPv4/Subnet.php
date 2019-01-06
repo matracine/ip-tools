@@ -127,9 +127,21 @@ class Subnet implements IP, \Countable, \ArrayAccess, \IteratorAggregate
      *
      * @return Address
      */
-    public function getNetmask()
+    public function getNetmaskAddress()
     {
         return  Address::fromInteger($this->netmask);
+    }
+
+    /**
+     * Get the netmask address as an Address object 
+     *
+     * Maitained to avoid BC break
+     *
+     * @return Address
+     */
+    public function getNetmask()
+    {
+        return  $this->getNetmaskAddress();
     }
 
     /**
