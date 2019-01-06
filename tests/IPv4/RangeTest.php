@@ -108,14 +108,14 @@ class RangeTest extends TestCase
     /**
      * @dataProvider arrrayAccessProvider
      */
-    public function testArrayAcces(Range $range, int $offset, Address $expected)
+    public function testArrayAcces(Range $range, $offset, Address $expected)
     {
         $this->assertEquals($expected->int(), $range[$offset]->int());
     }
 
     /**
      * @dataProvider arrrayAccessInvalidOffsetTypeProvider
-     * @expectedException \TypeError
+     * @expectedException InvalidArgumentException
      */
     public function testArrayAccesInvalidOffsetType(Range $range, $offset)
     {
@@ -137,13 +137,13 @@ class RangeTest extends TestCase
              [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), 0, Address::fromString("0.0.0.0") ],
              [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), 0xffffffff, Address::fromString("255.255.255.255") ],
              [ new Range(Address::fromString("0.0.0.255"), Address::fromString("255.255.255.255")), 1, Address::fromString("0.0.1.0") ],
+             [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), "0", Address::fromString("0.0.0.0") ],
         ];
     }
 
     public function arrrayAccessInvalidOffsetTypeProvider()
     {
         return [
-            [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), '0' ],
             [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), 0.2 ],
             [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), 'foo' ],
             [ new Range(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.255")), [0] ],

@@ -7,11 +7,24 @@
  */
 
 namespace mracine\IPTools;
-
+/**
+ * Interface for all classes of the IPTool package
+ */
 interface IP
 {
+    /**
+     * Version 4
+     */
     const IPv4 = 4;
+    /**
+     * Version 6
+     */
     const IPv6 = 6;
 
+    /**
+     * Get the IP version (IPv4 or IPv6) of this Rnage instance
+     * 
+     * @return int a constant IPv4 or IPv6
+     */
     public function version();
 }

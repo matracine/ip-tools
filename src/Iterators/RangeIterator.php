@@ -8,50 +8,90 @@
 
 namespace mracine\IPTools\Iterators;
 
-use mracine\IPTools\IPv4\Address;
 use mracine\IPTools\IPv4\Range;
 
 /**
- * Class Subnet represents an IP address with a netmask to specify a subnet
+ * Range implementation of Iterator
  *
- * @package IPTools\IPv4
+ * @package IPTools
  */
 class RangeIterator implements \Iterator
 {
+    /**
+     * @var Range $range local reference to the range to iterate
+     */
     protected $range;
-    protected $position;
 
+    /**
+     * @var int $index internal pointer in the range
+     */
+    protected $index;
+
+    /**
+     * Créates the iterator
+     *
+     * Initialize internal pointer to the first position of the Range
+     *
+     * @param Range $range
+     */
     public function __construct(Range $range)
     {
         $this->range = $range;
-        $this->position = 0;
+        $this->rewind();
     }
 
+    /**
+     * Return an Address representing the current element of the Range 
+     *
+     * Use the ArrayAccess interface of the Range. 
+     *
+     * @return Address
+     */
     public function current()
     {
-        return clone($this->range[$this->position]);
+        return $this->range[$this->index];
     }
 
+    /**
+     * Return the key of the current element 
+     *
+     * @return int
+     */
     public function key()
     {
-        return $this->position;
+        return $this->index;
     }
 
+    /**
+     * Move the internal pointer to the next element 
+     *
+     * @return void
+     */
     public function next()
     {
-        $this->position++;
+        $this->index++;
     }
 
+    /**
+     * Move the internal pointer to the first element 
+     *
+     * @return void
+     */
     public function rewind()
     {
-        $this->position = 0;
+        $this->index = 0;
     }
 
+    /**
+     * Tells if the internal pointer designs a valid element 
+     *
+     * @return bool
+     */
     public function valid()
     {
         try
         {
-            $this->range[$this->position];       
+            $this->range[$this->index];       
         }
         catch(\Exception $e)
         {

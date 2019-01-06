@@ -339,7 +339,7 @@ class SubnetTest extends TestCase
 
     /**
      * @dataProvider ArrayAccessTypeError
-     * @expectedException TypeError
+     * @expectedException InvalidArgumentException
      */
     public function testArrayAccessTypeError(Subnet $subnet, $offset)
     {
@@ -373,22 +373,6 @@ class SubnetTest extends TestCase
         unset($subnet[1]);
     }
 
-    // public function testIterator()
-    // {
-    //     $range = new Range(Address::fromString("0.0.0.0"), Address::fromString("0.0.0.5"));
-    //     foreach($range as $key=>$address)
-    //     {
-    //         $this->assertEquals($key, $address->int());
-    //     }
-
-    //     $range = new Range(Address::fromString("0.0.0.255"), Address::fromString("0.0.1.4"));
-    //     foreach($range as $key=>$address)
-    //     {
-    //         $this->assertEquals($key+255, $address->int());
-    //     }
-    // }
-
-
     public function ArrayAccessOutOfBounds()
     {
         return [
@@ -404,7 +388,7 @@ class SubnetTest extends TestCase
         return [
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), 0.1 ], 
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), 'toto' ], 
-            [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), '0' ], 
+            // [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), '0' ], 
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), [ 1 ] ], 
             // [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), new Object() ], 
         ];
@@ -421,16 +405,20 @@ class SubnetTest extends TestCase
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), 1, Address::fromString('10.0.0.1') ], 
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), 2, Address::fromString('10.0.0.2') ], 
             [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), 3, Address::fromString('10.0.0.3') ], 
+            [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 30), "3", Address::fromString('10.0.0.3') ], 
         ];
     }
 
     public function testIterator()
     {
         $subnet = Subnet::fromAddresses(Address::fromString("0.0.0.0"), Address::fromString("255.255.255.240"));
+        $c = 0;
         foreach($subnet as $key=>$address)
         {
             $this->assertEquals($key, $address->int());
+            $c++;
         }
+        $this->AssertEquals($subnet->count(), $c);
 
         $subnet = Subnet::fromAddresses(Address::fromString("0.0.1.0"), Address::fromString("255.255.255.240"));
         foreach($subnet as $key=>$address)

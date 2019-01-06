@@ -8,50 +8,91 @@
 
 namespace mracine\IPTools\Iterators;
 
-use mracine\IPTools\IPv4\Address;
 use mracine\IPTools\IPv4\Subnet;
 
 /**
- * Class Subnet represents an IP address with a netmask to specify a subnet
+ * Subnet implementation of Iterator
  *
- * @package IPTools\IPv4
+ * @package IPTools
  */
 class SubnetIterator implements  \Iterator
 {
+    /**
+     * @var Subnet $subnet local reference to the subnet to iterate
+     */
     protected $subnet;
-    protected $position;
 
+    /**
+     * @var int $index internal pointer in the subnet
+     */
+    protected $index;
+
+
+    /**
+     * Créates the iterator
+     *
+     * Initialize internal pointer to the first position of the Subnet
+     *
+     * @param Subnet $subnet
+     */
     public function __construct(Subnet $subnet)
     {
         $this->subnet = $subnet;
-        $this->position = 0;
+        $this->rewind();
     }
 
+    /**
+     * Return an Address representing the current element of the Subnet 
+     *
+     * Use the ArrayAccess interface of the subnet. 
+     *
+     * @return Address
+     */
     public function current()
     {
-        return clone($this->subnet[$this->position]);
+        return clone($this->subnet[$this->index]);
     }
 
+    /**
+     * Return the key of the current element 
+     *
+     * @return int
+     */
     public function key()
     {
-        return $this->position;
+        return $this->index;
     }
 
+    /**
+     * Move the internal pointer to the next element 
+     *
+     * @return void
+     */
     public function next()
     {
-        $this->position++;
+        $this->index++;
     }
 
+    /**
+     * Move the internal pointer to the first element 
+     *
+     * @return void
+     */
     public function rewind()
     {
-        $this->position = 0;
+        $this->index = 0;
     }
 
+    /**
+     * Tells if the internal pointer designs a valid element 
+     *
+     * @return bool
+     */
     public function valid()
     {
         try
         {
-            $this->subnet[$this->position];       
+            $this->subnet[$this->index];       
         }
         catch(\Exception $e)
         {
