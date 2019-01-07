@@ -14,7 +14,6 @@ use DomainException;
 use RuntimeException;
 
 use mracine\IPTools\IP;
-use mracine\IPTools\IPAddress;
 
 /**
  * Represents an IPv4 address
@@ -234,7 +233,6 @@ class Address implements IP
     public function asCidr()
     {
         // Pas très élégant.... 
-        $cidr = 32;
         for ($cidr=32 ; $cidr>=0 ; $cidr--)
         {
             $n = (0xffffffff << (32 - $cidr)) & 0xffffffff;

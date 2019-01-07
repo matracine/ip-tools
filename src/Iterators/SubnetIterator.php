@@ -46,11 +46,11 @@ class SubnetIterator implements  \Iterator
      *
      * Use the ArrayAccess interface of the subnet. 
      *
-     * @return Address
+     * @return \mracine\IPTools\IPv4\Address
      */
     public function current()
     {
-        return clone($this->subnet[$this->index]);
+        return $this->subnet[$this->index];
     }
 
     /**
