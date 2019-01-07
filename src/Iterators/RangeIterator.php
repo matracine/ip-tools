@@ -45,7 +45,7 @@ class RangeIterator implements \Iterator
      *
      * Use the ArrayAccess interface of the Range. 
      *  
-     * @return \mraccine\IPTools\IPv4\Address
+     * @return \mracine\IPTools\IPv4\Address
      */
     public function current()
     {

@@ -71,7 +71,7 @@ class Subnet implements IP, \Countable, \ArrayAccess, \IteratorAggregate
      *
      * Maintained to avoid BC-break 
      *
-     * @param Address the network base address  of the subnet
+     * @param Address $network the network base address  of the subnet
      * @param int $cidr the CIDR notation of the netmask
      * @throws OutOfBoundsException when $cidr is negatve or greater than 32
      * @throws RangeException when network address and netmask does not form a valid subnet 
