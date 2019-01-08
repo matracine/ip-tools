@@ -9,6 +9,12 @@ Classes :
  - IPv4\Subnet 
  - IPv4\Range
 
+## QA
+Service | Result
+**Travis CI** (PHP 7.0 + 7.1 + 7.2) | [![Build Status](https://travis-ci.org/matracine/ip-tools.svg?branch=master)](https://travis-ci.org/matracine/ip-tools)
+**Scrutinizer score** | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/matracine/ip-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/matracine/ip-tools/?branch=master)
+**Code coverage** | [![Code Coverage](https://scrutinizer-ci.com/g/matracine/ip-tools/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/matracine/ip-tools/?branch=master)
+
 ## Installation
 With composer:
 ```
