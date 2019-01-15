@@ -13,7 +13,7 @@ use InvalidArgumentException;
 use DomainException;
 use RuntimeException;
 
-use mracine\IPTools\IP;
+use mracine\IPTools\IPVersion;
 
 /**
  * Represents an IPv4 address
@@ -25,7 +25,7 @@ use mracine\IPTools\IP;
  *
  * @package IPTools
  */
-class Address implements IP
+class Address implements IPVersion
 {
     /**
      * Classes of an address
@@ -46,6 +46,9 @@ class Address implements IP
      * @var int
      */
     protected $address = 0;
+
+    // Implemnents version(); 
+    use IPv4;
     
     /**
      * Creates an instance of Adress from an integer (0x00000000 to 0xffffffff)
@@ -62,8 +65,7 @@ class Address implements IP
     {
         if ($address<0 || $address>0xffffffff)
         {
-            throw new OutOfBoundsException(sprintf("Cannot convert %d to an IPv4 address", $address));
-            
+            throw new OutOfBoundsException(sprintf("Cannot convert 0x%x to an IPv4 address", $address));            
         } 
 
         $this->address =  $address;
@@ -81,7 +83,7 @@ class Address implements IP
 
     public static function fromInteger(int $address)
     {
-        return new self($address);
+        return new static($address);
     }
 
 
@@ -144,7 +146,7 @@ class Address implements IP
             // shift adress left from one byte (8 bits), then add digit (the last byte)
             $buffer = ($buffer << 8) | $digit;
         }
-        return self::fromInteger($buffer);
+        return static::fromInteger($buffer);
     }
 
     /**
@@ -156,31 +158,8 @@ class Address implements IP
      */
     public static function fromString(string $address)
     {
-        return self::fromArray(explode('.', $address));
+        return static::fromArray(explode('.', $address));
     }
-
-    /**
-     * Creates an instance of address from an integer between 0 and 32
-     *
-     * Usefull to create netmask notations :
-     * A netmask is an adress (32 bits) with its left bits stes to 1 and rights to 0.
-     * 1 => 10000000000000000000000000000000 => "128.0.0.0"
-     * ...
-     * 24 => 11111111111111111111111100000000 => "255.255.255.0"
-     *
-     * @param int $cidr CIDR notation of address
-     * @throws OutOfBoundsException when param is negatve or greater than 32
-     * @return self
-     */
-    public static function fromCidr(int $cidr)
-    {
-        if ($cidr<0 || $cidr>32 )
-        {
-            throw new OutOfBoundsException(sprintf("Invalid CIDR value %d", $cidr));
-        }
-        $netmask = (0xffffffff << (32 - $cidr)) & 0xffffffff;
-        return Address::fromInteger($netmask);
-    }    
 
     /**
      * Get the default 'dotted-quad' representation of the IPv4 address ("#.#.#.#")
@@ -230,19 +209,19 @@ class Address implements IP
      * @throws DomainException when the address cannot be converted to CIDR
      * @return integer A value beteween 0 to 32  
      */
-    public function asCidr()
-    {
-        // Pas très élégant.... 
-        for ($cidr=32 ; $cidr>=0 ; $cidr--)
-        {
-            $n = (0xffffffff << (32 - $cidr)) & 0xffffffff;
-            if( $n == $this->address )
-            {
-                return $cidr;
-            }
-        }
-        throw new DomainException(sprintf("Cannot convert address %s to CIDR, not a netmask", (string)$this));
-    }
+    // public function asCidr()
+    // {
+    //     // Pas très élégant.... 
+    //     for ($cidr=32 ; $cidr>=0 ; $cidr--)
+    //     {
+    //         $n = (0xffffffff << (32 - $cidr)) & 0xffffffff;
+    //         if( $n == $this->address )
+    //         {
+    //             return $cidr;
+    //         }
+    //     }
+    //     throw new DomainException(sprintf("Cannot convert address %s to CIDR, not a netmask", (string)$this));
+    // }
 
 
     /**
@@ -258,7 +237,16 @@ class Address implements IP
         return $this->asDotQuad();
     }
 
-
+    /**
+     * Tests if two addresses are equivalent (same value)
+     *
+     * @param self $address
+     * @return bool
+     */
+     public function match(Address $address)
+    {
+        return $this->int() == $address->int();
+    }
 
     /**
      * Get the class of the IP address (for obsolete classfull routing)
@@ -296,14 +284,24 @@ class Address implements IP
     }
 
     /**
+     * Returns whether the address is part of multicast address range
+     * 
+     * @return bool 
+     */
+    public function isMulticast()
+    {
+        return $this->getClass() === self::CLASS_D;
+    }
+
+    /**
      * Get the IP version (IPv4 or IPv6) of this address instance
      * 
      * @return int a constant IPv4 or IPv6
      */
-    public function version()
-    {
-        return self::IPv4;
-    }
+    // public function version()
+    // {
+    //     return self::IPv4;
+    // }
 
     /**
      * Tells if the adresse can be used as a netmask
@@ -316,19 +314,19 @@ class Address implements IP
      * @see Address::fromCidr()
      * @return bool  
      */
-    public function isNetmask()
-    {
-        // Pas très élégant non plus.... 
-        try
-        {
-            $this->asCidr();
-        }
-        catch(DomainException $e)
-        {
-            return false;
-        }
-        return true;
-    }
+    // public function isNetmask()
+    // {
+    //     // Pas très élégant non plus.... 
+    //     try
+    //     {
+    //         $this->asCidr();
+    //     }
+    //     catch(DomainException $e)
+    //     {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     /**
      * Returns whether the address is part of the subnets defined in RFC 1918
@@ -387,27 +385,6 @@ class Address implements IP
     }
 
     /**
-     * Returns whether the address is part of multicast address range
-     * 
-     * @return bool 
-     */
-    public function isMulticast()
-    {
-        return $this->getClass() === self::CLASS_D;
-    }
-
-    /**
-     * Tests if two addresses are equivalent (same value)
-     *
-     * @param self $address
-     * @return bool
-     */
-     public function match(Address $address)
-    {
-        return $this->int() == $address->int();
-    }
-
-    /**
      * Returns an address shifted by an amount of units 
      *
      * NOTICE : A new instance of address is instanciated, does not shitf the instance used.
@@ -418,7 +395,7 @@ class Address implements IP
      */
     public function shift(int $offset)
     {
-        return self::fromInteger($this->address+$offset);
+        return new static($this->address+$offset);
     }
 
     /**
@@ -454,5 +431,4 @@ class Address implements IP
     {
         return $this->shift(-1);
     }
-
 }

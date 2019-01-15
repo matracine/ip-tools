@@ -10,7 +10,7 @@ namespace mracine\IPTools;
 /**
  * Interface for all classes of the IPTool package
  */
-interface IP
+interface IPVersion
 {
     /**
      * Version 4

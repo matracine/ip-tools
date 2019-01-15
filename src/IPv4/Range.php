@@ -14,11 +14,12 @@ use BadMethodCallException;
 
 use mracine\IPTools\Iterators\RangeIterator;
 use mracine\IPTools\IPv4\Address;
-use mracine\IPTools\IP;
+use mracine\IPTools\IPVersion;
+
 /**
  * Represents a range of IPv4 addresses
  *
- * A range of IPv4 address are consecutives addresses limited by a upper & a lower address (boundaries)
+ * A range of IPv4 address are consecutives addresses
  *
  * A range implements :
  *  * Countable : number of addresses
@@ -27,43 +28,79 @@ use mracine\IPTools\IP;
  * 
  * @package IPTools
  */
-class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
+
+class Range implements IPVersion, \Countable, \ArrayAccess, \IteratorAggregate
 {
 
     /**
-     * @var Address $lowerBound The first address of the range
+     * @var Address $baseAddress The first address of the range
      */
-    private $lowerBound;
+    protected $baseAddress;
 
     /**
      * @var Address upperBound The last address of the range
      */
-    private $upperBound;
+    // private $upperBound;
+    /**
+     * @var int $count the address count in the range
+     */
+    protected $count;
+
+
+    // Implemnents version(); 
+    use IPv4;
 
     /**
      * Creates an IP range from a couple of IP addresses
      *
      * Lower and upper bound are automaticly choosen, no need to choose wich one to pas first.
      *
-     * @param Address $ip1 a bound
-     * @param Address $ip2 other bound
+     * @param Address $baseAddress the first address of the range
+     * @param int $count the number  other bound
      */
-    public function __construct(Address $ip1, Address $ip2)
+    public function __construct(Address $lowerBound, Address $upperBound)
     {
-        if ($ip1->int() < $ip2->int())
+        $lower = $lowerBound->int();
+        $upper = $upperBound->int();
+        if ($lower > $upper)
         {
-            $this->lowerBound = clone($ip1);
-            $this->upperBound = clone($ip2);
+            $temp = $lower;
+            $lower = $upper;
+            $upper = $temp;
+        }
+        $this->baseAddress = new Address($lower);
+        $this->count = $upper - $lower + 1;
+    } 
+
+    /**
+     * Returns an Range object from a base Address and a count of Addresses in the range 
+     *
+     * Negative count values rearange the lower bound Address
+     * @param Address $baseAddress the lower bound
+     * @param int $count the number of addresses in the Range
+     * @return self
+     */
+    public static function fromCount(Address $baseAddress, int $count)
+    {
+        if ($count == 0)
+        {
+            throw new InvalidArgumentException("Cannot assign a range of 0 addresses");
+        }
+        if ($count<0)
+        {
+            $delta = $count+1;
         }
         else
         {
-            $this->lowerBound = clone($ip2);
-            $this->upperBound = clone($ip1);
+            $delta = $count-1;
         }
+        $upperBound = $baseAddress->shift($delta);
+        return new static($baseAddress, $upperBound);
     }
 
+
     /**
-     * Get the lower bound adress of the range
+     * Get the first address of the range
      *
      * NOTICE : The returned address is a newly created address instance.
      * 
@@ -71,11 +108,11 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function getLowerBound()
     {
-        return clone($this->lowerBound);
+        return clone($this->baseAddress);
     }
 
     /**
-     * Returns the first address of the range
+     * Returns the last address of the range
      *
      * NOTICE : The returned address is a newly created address instance.   
      *
@@ -83,7 +120,7 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function getUpperBound()
     {
-        return clone($this->upperBound);
+        return new Address($this->getLowerBound()->int()+$this->count-1);
     }
 
     /**
@@ -98,7 +135,7 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
     {
         $ipVal = $ip->int();
 
-        return ($ipVal>=$this->lowerBound->int()) && ($ipVal<=$this->upperBound->int() );
+        return ($ipVal>=$this->getLowerBound()->int()) && ($ipVal<=$this->getUpperBound()->int());
     }
 
 
@@ -122,17 +159,49 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
      */
     public function count()
     {
-        return $this->upperBound->int() - $this->lowerBound->int() + 1; 
+        return $this->count; 
     }
 
     /**
-     * Get the IP version (IPv4 or IPv6) of this Rnage instance
-     * 
-     * @return int a constant IPv4 or IPv6
-     */
-    public function version()
+     * Returns a range shifted by an amount of units (count)
+     *
+     * Need explain...
+     *
+     * @param int $offset
+     * @throws OutOfBounsException when the resulting subet is invalid
+     * @return Subnet
+     */  
+    public function shift(int $offset)
     {
-        return self::IPv4;
+        return static::fromCount($this->getLowerBound()->shift($offset*count($this)), count($this));
+    }
+
+    /**
+     * Returns a subnet with the same netmask having network addres one more than broadcast address of the original subnet ($this)
+     *
+     * Need explain...
+     *
+     * @param int $offset
+     * @throws OutOfBounsException when the resulting subet is invalid (when braodcast address of self = 255.255.255.255)
+     * @return Subnet
+     */  
+    public function next()
+    {
+        return $this->shift(1);
+    }
+
+    /**
+     * Returns a subnet with the same netmask having broacast addres one less than network address of the original subnet ($this)
+     *
+     * Need explain...
+     *
+     * @param int $offset
+     * @throws OutOfBounsException when the resulting subet is invalid (when braodcast address of self = 255.255.255.255)
+     * @return Subnet
+     */  
+    public function previous()
+    {
+        return $this->shift(-1);
     }
 
     /*
@@ -142,7 +211,7 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
     /**
      * Checks if there is an Address at the given index within the Range.
      *
-     * @param int $offset address index
+     * @param int|string $offset address index
      * @throws InvalidArgumentException when $offset is not an integer
      * @return boolean
      */
@@ -184,7 +253,7 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
             throw new OutOfBoundsException();
         }
 
-        return $this->lowerBound->shift($offset);
+        return $this->getLowerBound()->shift($offset);
     }
 
     /**
@@ -230,38 +299,4 @@ class Range implements IP, \Countable, \ArrayAccess, \IteratorAggregate
     {
         return new RangeIterator($this);
     }
-    // public function isSubnet()
-    // {
-    //     try
-    //     {
-    //         $this->toSubnet();
-    //     }
-    //     catch (\Exception $e)
-    //     {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-
-    // public function toSubnet()
-    // {
-    //     $l = $this->getLowerBound()->int();
-    //     $u = $this->getUpperBound()->int();
-
-    //     $netmask = 0xffffffff;
-    //     while($netmask!=0)
-    //     {
-    //         // Déterminer le netmask pour la partie commune des 2 IPs
-    //         if (($u & $netmask) == ($l & $netmask))
-    //         {
-    //             // La bprne basse ne doit avoir que des 0 dan
-    //             if ( ($l & (~$netmask))    
-    //              echo "\n***\ntoSubnet : ".$this->getLowerBound()." / ". Address::fromInteger($netmask)."\n" ;
-    //             return Subnet::fromAddresses($this->getLowerBound(), Address::fromInteger($netmask));
-    //         }
-    //         $netmask = ($netmask << 1) & 0xffffffff;
-    //     }
-    //     throw new \Exception("Error Processing Request", 1);
-    // }
-
 }
