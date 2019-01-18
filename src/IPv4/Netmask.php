@@ -86,7 +86,7 @@ class Netmask extends Address  implements Countable
      * Get a Netmask object from an Address if possible
      *
      * @throws DomainException when the Address cannot be converted to a Netmask
-     * @return mracine\IPTools\IPv4\Netmask
+     * @return \mracine\IPTools\IPv4\Netmask
      */
 
     public static function fromAddress(Address $address)
