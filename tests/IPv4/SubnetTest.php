@@ -130,6 +130,64 @@ class SubnetTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider fromStringInvalidArgumentProvider
+     * @expectedException InvalidArgumentException 
+     * @covers ::fromString
+     */
+    public function testFromstringInvalidArgument(string $value)
+    {
+        $subnet = Subnet::fromString($value);
+        // $this->AssertEquals($excpectedNetwork->int(), $subnet->getNetworkAddress()->int());
+        // $this->AssertEquals($expectedBroadcast->int(), $subnet->getBroadcastAddress()->int());
+    }
+
+    public function fromStringInvalidArgumentProvider()
+    {
+        return [
+            [""],
+            ["/"],
+            ["//"],
+            ["///"],
+            ["0/0"],
+            ["0/32"],
+            ["/0/0"],
+            ["0/0/"],
+            ["/0/0/"],
+            ["0.0.0.0"],
+            ["0.0.0.0/"],
+            ["0.0.0.0//"],
+            ["/0.0.0.0"],
+            ["//0.0.0.0"],
+            ["123.123.123.0"],
+            ["123.123.123.0/A"],
+        ];
+    }
+
+    /**
+     * @dataProvider fromStringProvider
+     * @covers ::fromString
+     */
+    public function testFromstring(string $value, Address $expectedNetwork, Address $expectedBroadcast)
+    {
+        $subnet = Subnet::fromString($value);
+        $this->AssertEquals($expectedNetwork->int(), $subnet->getNetworkAddress()->int());
+        $this->AssertEquals($expectedBroadcast->int(), $subnet->getBroadcastAddress()->int());
+    }
+
+    public function fromStringProvider()
+    {
+        return [
+            ["0.0.0.0/0", new Address(0), new Address(0xffffffff)],
+            ["0.0.0.0/24", new Address(0), new Address(0x000000ff)],
+            ["0.0.0.0/32", new Address(0), new Address(0)],
+            ["255.255.255.255/32", new Address(0xffffffff), new Address(0xffffffff)],
+            ["0.0.0.0/0.0.0.0", new Address(0), new Address(0xffffffff)],
+            ["0.0.0.0/255.255.255.0", new Address(0), new Address(0x000000ff)],
+            ["0.0.0.0/255.255.255.255", new Address(0), new Address(0)],
+            ["255.255.255.255/255.255.255.255", new Address(0xffffffff), new Address(0xffffffff)],
+        ];
+    }
 
     /**
      * @dataProvider getNetworkAddressProvider

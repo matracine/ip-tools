@@ -108,6 +108,31 @@ class Subnet extends Range
         return static::fromCidr($network, $cidr);
     }
 
+
+    /**
+     * Return a subnet from string
+     *
+     * 
+     * 
+     * @param string $subnet a CIDR formated or netmask representtation of the subnet : x.x.x.x/24 or x.x.x.x/255.255.255.0
+     * @throws InvaidArgumentException when provided sting cannot be converted to a valid subnet
+     * @return Subnet
+     */
+    public static function fromString(string $subnet)
+    {
+        @list($address, $netmask, $trash) = explode('/', $subnet);
+        if (!is_null($trash) || is_null($netmask))
+        {
+            throw new InvalidArgumentException(sprintf("%s cannot be converted to subnet. Valid formats are : x.x.x.x/cidr or x.x.x.x/y.y.y.y", $subnet));
+        }
+
+        if(ctype_digit($netmask))
+        {
+            return static::fromCidr(Address::fromString($address), (int)$netmask);
+        }
+        return new static(Address::fromString($address), Netmask::fromString($netmask));
+    }
+
     /**
      * Get the network address
      *
