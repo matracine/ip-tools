@@ -27,32 +27,56 @@ use mracine\IPTools\IPVersion;
 class SubnetTest extends TestCase
 {
     /**
-     * @dataProvider contructorProvider
+     * @dataProvider contructStrictProvider
      * @covers ::__construct
      */    
-    public function testConstruct(Address $network, Netmask $netmask, Range $expected)
+    public function testConstructStrict(Address $network, Address $netmask, Range $expected)
     {
         $subnet = new Subnet($network, $netmask);
         $this->assertEquals($expected->getLowerBound()->int(), $subnet->getLowerBound()->int());
         $this->assertEquals($expected->getUpperBound()->int(), $subnet->getUpperBound()->int());
     }
 
-    public function contructorProvider()
+    public function contructStrictProvider()
     {
         return [
             [ Address::fromString('0.0.0.0'), Netmask::fromString('255.255.255.255'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.0') )],
             [ Address::fromString('0.0.0.0'), Netmask::fromString('255.255.255.0'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.255') )],
+            [ Address::fromString('0.0.0.0'), Address::fromString('255.255.255.255'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.0') )],
+            [ Address::fromString('0.0.0.0'), Address::fromString('255.255.255.0'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.255') )],
         ];
     }
 
     /**
+     * @dataProvider constructNotStrictProvider
      * @covers ::__construct
-     * @expectedException InvalidArgumentException
      */    
-    public function testConstructInvalidArgument()
+    public function testConstructNotStrict(Address $network, Netmask $netmask, Range $expected)
     {
-        $subnet = new Subnet(new Address(0), new Address(0));
+        $subnet = new Subnet($network, $netmask, false);
+        $this->assertEquals($expected->getLowerBound()->int(), $subnet->getLowerBound()->int());
+        $this->assertEquals($expected->getUpperBound()->int(), $subnet->getUpperBound()->int());
     }
+
+    public function constructNotStrictProvider()
+    {
+        return [
+            [ Address::fromString('0.0.0.0'), Netmask::fromString('255.255.255.255'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.0') )],
+            [ Address::fromString('0.0.0.0'), Netmask::fromString('255.255.255.0'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.255') )],
+            [ Address::fromString('0.0.0.10'), Netmask::fromString('255.255.255.0'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.255') )],
+            [ Address::fromString('0.0.0.255'), Netmask::fromString('255.255.255.0'), new Range(Address::fromString('0.0.0.0'), Address::fromString('0.0.0.255') )],
+        ];
+    }
+
+
+    // /**
+    //  * @covers ::__construct
+    //  * @expectedException InvalidArgumentException
+    //  */    
+    // public function testConstructInvalidArgument()
+    // {
+    //     $subnet = new Subnet(new Address(0), new Address(0));
+    // }
 
     /**
      * @covers ::__construct
@@ -64,10 +88,10 @@ class SubnetTest extends TestCase
     }
 
     /**
-     * @dataProvider fromCidrProvider
+     * @dataProvider fromCidrStrictProvider
      * @covers ::fromCidr
      */
-    public function testFromCidr(Address $network, int $cidr, Range $expected)
+    public function testFromCidrStrict(Address $network, int $cidr, Range $expected)
     {
         $subnet = Subnet::fromCidr($network, $cidr);
 
@@ -75,7 +99,7 @@ class SubnetTest extends TestCase
         $this->AssertEquals($expected->getUpperBound()->int(), $subnet->getBroadcastAddress()->int());
     }
 
-    public function fromCidrProvider()
+    public function fromCidrStrictProvider()
     {
         return [
             [ Address::fromString('0.0.0.0'),          0, new Range(Address::fromString('0.0.0.0'), Address::fromString('255.255.255.255')) ],
@@ -90,6 +114,30 @@ class SubnetTest extends TestCase
             // [ Address::fromString('10.2.4.0'),        30, Address::fromString('10.2.4.3') ],
         ];
     }
+
+    /**
+     * @dataProvider fromCidrNotStrictProvider
+     * @covers ::fromCidr
+     */
+    public function testFromCidrNotStrict(Address $network, int $cidr, Range $expected)
+    {
+        $subnet = Subnet::fromCidr($network, $cidr, false);
+
+        $this->AssertEquals($expected->getLowerBound()->int(), $subnet->getNetworkAddress()->int());
+        $this->AssertEquals($expected->getUpperBound()->int(), $subnet->getBroadcastAddress()->int());
+    }
+
+    public function fromCidrNotStrictProvider()
+    {
+        return [
+            [ Address::fromString('10.0.10.243'),   0, new Range(Address::fromString('0.0.0.0'), Address::fromString('255.255.255.255')) ],
+            [ Address::fromString('10.2.4.0'),     30, new Range(Address::fromString('10.2.4.0'), Address::fromString('10.2.4.3')) ],
+            [ Address::fromString('10.2.4.1'),     30, new Range(Address::fromString('10.2.4.0'), Address::fromString('10.2.4.3')) ],
+            [ Address::fromString('10.2.4.2'),     30, new Range(Address::fromString('10.2.4.0'), Address::fromString('10.2.4.3')) ],
+            [ Address::fromString('10.2.4.3'),     30, new Range(Address::fromString('10.2.4.0'), Address::fromString('10.2.4.3')) ],
+        ];
+    }
+
     /**
      * @dataProvider fromCidrRangeExceptionProvider
      * @expectedException RangeException
@@ -150,6 +198,7 @@ class SubnetTest extends TestCase
             ["//"],
             ["///"],
             ["0/0"],
+            ["0/0/0"],
             ["0/32"],
             ["/0/0"],
             ["0/0/"],
@@ -201,10 +250,10 @@ class SubnetTest extends TestCase
     public function getNetworkAddressProvider()
     {        
         return [
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.0.10.243'), 0), Address::fromString('0.0.0.0') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.1'),   30), Address::fromString('10.2.4.0') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.2'),   30), Address::fromString('10.2.4.0') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.3'),   30), Address::fromString('10.2.4.0') ],
+            [ Subnet::fromCidr(Address::fromString('10.0.10.243'), 0, false), Address::fromString('0.0.0.0') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.1'), 30, false), Address::fromString('10.2.4.0') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.2'), 30, false), Address::fromString('10.2.4.0') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.3'), 30, false), Address::fromString('10.2.4.0') ],
         ];
     }
 
@@ -220,10 +269,10 @@ class SubnetTest extends TestCase
     public function getNetmaskProvider()
     {        
         return [
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.0.10.243'), 0), Address::fromString('0.0.0.0') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.1'),   30), Address::fromString('255.255.255.252') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.2'),   31), Address::fromString('255.255.255.254') ],
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.2.4.3'),   32), Address::fromString('255.255.255.255') ],
+            [ Subnet::fromCidr(Address::fromString('10.0.10.243'), 0, false), Address::fromString('0.0.0.0') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.1'),   30, false), Address::fromString('255.255.255.252') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.2'),   31, false), Address::fromString('255.255.255.254') ],
+            [ Subnet::fromCidr(Address::fromString('10.2.4.3'),   32, false), Address::fromString('255.255.255.255') ],
         ];
     }
 
@@ -302,14 +351,14 @@ class SubnetTest extends TestCase
     public function matchProvider()
     {
         return [
-            [ Subnet::fromContainedAddressCidr(Address::fromString('10.0.0.2'), 24), Subnet::fromContainedAddressCidr(Address::fromString('10.0.0.198'), 24) ],
+            [ Subnet::fromCidr(Address::fromString('10.0.0.2'), 24, false), Subnet::fromCidr(Address::fromString('10.0.0.198'), 24, false) ],
         ];
     }
 
     public function noMatchProvider()
     {
         return [
-            [ Subnet::fromContainedAddressCidr(Address::fromString('100.0.0.2'), 24), Subnet::fromContainedAddressCidr(Address::fromString('10.0.0.198'), 24) ],
+            [ Subnet::fromCidr(Address::fromString('100.0.0.2'), 24, false), Subnet::fromCidr(Address::fromString('10.0.0.198'), 24, false) ],
         ];
     }
 
