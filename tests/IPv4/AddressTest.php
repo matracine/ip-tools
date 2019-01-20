@@ -1,7 +1,6 @@
 <?php
 /**
  * Copyright (c) 2018 Mattheu Racine
- * Inspired by Gijs Kunze https://github.com/gwkunze/IpAddress 
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -62,6 +61,26 @@ class AddressTest extends TestCase
             [ 0 ],
             [ 0xffffffff ]
         ];
+    }
+
+    /**
+     * @covers ::minAddress
+     */
+    public function testAddress()
+    {
+        $address = Address::minAddress();
+        $this->assertInstanceOf(Address::class, $address);
+        $this->assertEquals(0, $address->int());
+    }
+
+    /**
+     * @covers ::maxAddress
+     */
+    public function testMaxAddress()
+    {
+        $address = Address::maxAddress();
+        $this->assertInstanceOf(Address::class, $address);
+        $this->assertEquals(0xffffffff, $address->int());
     }
 
     /**

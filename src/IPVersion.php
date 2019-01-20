@@ -27,4 +27,18 @@ interface IPVersion
      * @return int a constant IPv4 or IPv6
      */
     public function version();
+
+    /**
+     * Get the minimal IP Address
+     * 
+     * @return IPVersion the minimal Address
+     */
+    public static function minAddress();
+
+    /**
+     * Get the maximal IP Address
+     * 
+     * @return IPVersion the maximal Address
+     */
+    public static function maxAddress();
 }
