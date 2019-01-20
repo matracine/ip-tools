@@ -249,6 +249,20 @@ class Address implements IPVersion
     }
 
     /**
+     * Tells if the address is contained in a range
+     *
+     * Return true if the provided address is between the boundaries of the range.  
+     *
+     * @param Range $container 
+     * @return bool
+     */
+    public function isIn(Range $container)
+    {
+        return ($container->getLowerBound()->int()<=$this->int()) && ($this->int()<=$container->getUpperBound()->int());
+    }
+
+
+    /**
      * Get the class of the IP address (for obsolete classfull routing)
      *
      * @return string a constant CLASS_[A-E]
@@ -292,41 +306,6 @@ class Address implements IPVersion
     {
         return $this->getClass() === self::CLASS_D;
     }
-
-    /**
-     * Get the IP version (IPv4 or IPv6) of this address instance
-     * 
-     * @return int a constant IPv4 or IPv6
-     */
-    // public function version()
-    // {
-    //     return self::IPv4;
-    // }
-
-    /**
-     * Tells if the adresse can be used as a netmask
-     * 
-     * A netmask is a kind of address.
-     * Only a little nuber of adresses can be used as netmasks (33).
-     * Only adresses with left bits sets to 1 and rights bits sets to 0, with no mix between this two zones are eligible to be netmasks.
-     * NOTE : An adress can be a netmask if it can be converted to a CIDR value and vice versa
-     *
-     * @see Address::fromCidr()
-     * @return bool  
-     */
-    // public function isNetmask()
-    // {
-    //     // Pas très élégant non plus.... 
-    //     try
-    //     {
-    //         $this->asCidr();
-    //     }
-    //     catch(DomainException $e)
-    //     {
-    //         return false;
-    //     }
-    //     return true;
-    // }
 
     /**
      * Returns whether the address is part of the subnets defined in RFC 1918

@@ -127,6 +127,39 @@ class RangeTest extends TestCase
 
     }
 
+    /**
+     * @dataProvider isInProvider
+     * @covers ::isIn()
+     */
+    public function testIsIn(Range $range, Range $container, bool $expected)
+    {
+        if ($expected)
+        {
+            $this->assertTrue($range->isIn($container));
+        }
+        else
+        {
+            $this->assertFalse($range->isIn($container));
+        }
+    }
+
+    public function isInProvider()
+    {
+        $rangeMinimal = new Range(new Address(0), new Address(0));
+        $rangeFull    = new Range(new Address(0), new Address(0xffffffff));
+
+        return [
+            [ $rangeFull,    $rangeMinimal, false ],
+            [ $rangeFull,    $rangeFull, true ],
+            [ $rangeMinimal, $rangeMinimal, true ],
+            [ $rangeMinimal, $rangeFull, true ],
+            [ new Range(new Address(1), new Address(10)), new Range(new Address(1), new Address(11)), true ],
+            [ new Range(new Address(1), new Address(10)), new Range(new Address(1), new Address(9)), false ],
+            [ new Range(new Address(1), new Address(10)), new Range(new Address(0), new Address(10)), true ],
+            [ new Range(new Address(1), new Address(10)), new Range(new Address(2), new Address(10)), false ],
+        ];
+    }
+
     public function testImmutable()
     {
         $ip1 = Address::fromString('10.0.0.1');

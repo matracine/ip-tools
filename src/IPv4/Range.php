@@ -128,15 +128,29 @@ class Range implements IPVersion, \Countable, \ArrayAccess, \IteratorAggregate
      *
      * Return true if the provided address is between the boundaries of the range.  
      *
-     * @param Address $ip 
+     * @deprecated Use Address::isIn
+     * @see Address::isIn
+     * @param Address $ip
      * @return bool
      */
     public function contains(Address $ip)
     {
-        $ipVal = $ip->int();
-
-        return ($ipVal>=$this->getLowerBound()->int()) && ($ipVal<=$this->getUpperBound()->int());
+        return $ip->isIn($this);
     }
+
+    /**
+     * Tells if the range is contained in an other range
+     *
+     * Return true if the provided address is between the boundaries of the range.  
+     *
+     * @param Address $ip 
+     * @return bool
+     */
+    public function isIn(Range $container)
+    {
+        return ($container->getLowerBound()->int()<=$this->getLowerBound()->int()) && ($this->getUpperBound()->int()<=$container->getUpperBound()->int());
+    }
+
 
 
     /**

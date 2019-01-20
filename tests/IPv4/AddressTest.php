@@ -12,8 +12,9 @@ namespace Tests\IPv4;
 
 use PHPUnit\Framework\TestCase;
 
-use mracine\IPTools\IPv4\Address;
 use mracine\IPTools\IPVersion;
+use mracine\IPTools\IPv4\Address;
+use mracine\IPTools\IPv4\Range;
 
 /**
  * @coversDefaultClass mracine\IPTools\IPv4\Address
@@ -353,6 +354,24 @@ class AddressTest extends TestCase
 			[ Address::fromString('255.255.255.255'), new Address(0xffffffff) ],
 		];
 	}
+
+    /**
+     * @dataProvider isInProvider
+     * @covers ::isIn
+     */
+    public function testIsIn(Address $address, Range $range)
+    {
+        $this->assertTrue($address->isIn($range));
+    }
+
+    public function isInProvider()
+    {
+        return [
+            [ new Address(0),          new Range(new Address(0), new Address(0xffffffff)) ],
+            [ new Address(0xffffffff), new Range(new Address(0), new Address(0xffffffff)) ],
+            [ new Address(150),        new Range(new Address(0), new Address(0xffffffff)) ],
+        ];
+    }
 
 	/**
 	 * @dataProvider classProvider
