@@ -329,7 +329,7 @@ class Address implements IPVersion
             Subnet::fromCidr(Address::fromString("192.168.0.0"), 16),
         );
         foreach($subnets as $subnet) {
-            if($subnet->contains($this)) {
+            if($this->isIn($subnet)) {
                 return true;
             }
         }
@@ -349,7 +349,7 @@ class Address implements IPVersion
     public function isRFC6598()
     {
         $subnet = Subnet::fromCidr(Address::fromString("100.64.0.0"), 10);
-        return $subnet->contains($this) ? true : false;
+        return $this->isIn($subnet);
     }
 
     /**

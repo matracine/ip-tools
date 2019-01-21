@@ -52,13 +52,13 @@ class Subnet extends Range
         // Verify parameters validity
         if( (($network->int() & $finalNetmask->int()) != $network->int()) && $strict)
         {
-            throw new RangeException(sprintf("Invalid network adress %s, this address is not usable with the netmask %s", (string)$network, (string)$netmask));
+            throw new RangeException(sprintf("Invalid network adress %s, this address is not usable with the netmask %s", (string)$network, (string)$finalNetmask));
         }
 
         $finalNetwork = new Address($network->int() & $finalNetmask->int());
 
         parent::__construct($finalNetwork, $finalNetwork->shift(count($finalNetmask)-1));
-        $this->netmask = $netmask;
+        $this->netmask = $finalNetmask;
     }
 
    /**
