@@ -4,7 +4,7 @@
  *
  * @package IPTools
  */
-namespace mracine\IPTools\IPV4;
+namespace mracine\IPTools\IPv4;
 
 use mracine\IPTools\IPVersion;;
 
