@@ -55,7 +55,6 @@ class Address implements IPVersion
      *
      * @see Address::fromInteger
      * @see Address::fromString
-     * @see Address::fromCidr
      * @see Address::fromArray
      * @param int $address 32 bits integer reprsenting the adress
      * @throws OutOfBoundsException when the value is negative or greater than 32 bits value
@@ -201,28 +200,6 @@ class Address implements IPVersion
     {
         return $this->asInteger();
     }
-
-    /**
-     * Get the CIDR integer value (0-32) from the adress if possible (eg : "255.255.255.0" returns 24)
-     *
-     * @see Address::fromCidr()
-     * @throws DomainException when the address cannot be converted to CIDR
-     * @return integer A value beteween 0 to 32  
-     */
-    // public function asCidr()
-    // {
-    //     // Pas très élégant.... 
-    //     for ($cidr=32 ; $cidr>=0 ; $cidr--)
-    //     {
-    //         $n = (0xffffffff << (32 - $cidr)) & 0xffffffff;
-    //         if( $n == $this->address )
-    //         {
-    //             return $cidr;
-    //         }
-    //     }
-    //     throw new DomainException(sprintf("Cannot convert address %s to CIDR, not a netmask", (string)$this));
-    // }
-
 
     /**
      * Get a string representation of address

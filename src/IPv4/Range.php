@@ -46,8 +46,6 @@ class Range implements IPVersion, \Countable, \ArrayAccess, \IteratorAggregate
      */
     protected $count;
 
-
-    // Implemnents version(); 
     use IPv4;
 
     /**

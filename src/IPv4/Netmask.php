@@ -124,6 +124,15 @@ class Netmask extends Address  implements Countable
         return (~($this->int()) & 0xffffffff)+1;
     }
 
+    /**
+     * Returns an netmask calculated from the current netmask, shifted by an amount of bits 
+     *
+     * NOTICE : A new instance of address is instanciated, does not shitf the instance used.
+     *
+     * @param int $offset in bits
+     * @throws OutOfBoundsException when the resulting cidr is out of the bounds (negative or greater than 32)
+     * @return self
+     */
     public function shift(int $offset)
     {
         return static::fromCidr($this->asCidr() + $offset);
