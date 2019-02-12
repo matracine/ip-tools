@@ -24,7 +24,7 @@ Service | Result
 ## Installation
 With composer:
 ```
-composer require mracine/ip-tools
+composer require matracine/ip-tools
 ```
 
 ## Usage
