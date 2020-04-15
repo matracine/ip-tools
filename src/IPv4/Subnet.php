@@ -91,17 +91,14 @@ class Subnet extends Range
     {
         @trigger_error(
             'The fromContainedAddressCidr functon is deprecated and will be removed soon.'
-            .' Use fromCidr with strict arameter set to true instead.',
+            .' Use fromCidr with strict parameter set to false instead.',
         E_USER_DEPRECATED
     );
         return static::fromCidr($address, $cidr, false);
     }
 
-
     /**
-     * Return a subnet from string
-     *
-     * 
+     * Construct a subnet from string
      * 
      * @param string $subnet a CIDR formated or netmask representtation of the subnet : x.x.x.x/24 or x.x.x.x/255.255.255.0
      * @param bool $strict if true address must be a netwoek bound, else an be an address within the range
@@ -121,6 +118,19 @@ class Subnet extends Range
             return static::fromCidr(Address::fromString($address), (int)$netmask, $strict);
         }
         return new static(Address::fromString($address), Netmask::fromString($netmask), $strict);
+    }
+
+    /**
+     * Retrun a string representing the Subnet un DotQuad notation and CIDR
+     * 
+     * ex: 192.168.0.0/24
+     *
+     * @param string $separator The separator used between network an CIDR, defaults to /
+     * @return string
+     */
+    public function asDotQuadAndCidr(string $separator='/')
+    {
+        return (string)$this->getNetworkAddress() . $separator . (string)$this->getNetmaskAddress()->asCidr();
     }
 
     /**

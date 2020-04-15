@@ -328,6 +328,28 @@ class SubnetTest extends TestCase
     }
 
     /**
+     * @dataProvider AsDotQuadAndCidrroviderProvider
+     * @covers ::asDotQuadAndCidr
+     */
+    public function testAsDotQuadAndCidr(Subnet $subnet, string $separator, string $expected)
+    {
+        $this->assertEquals($expected, $subnet->asDotQuadAndCidr($separator));
+        // Test default separator
+        if ('/' === $separator) {
+            $this->assertEquals($expected, $subnet->asDotQuadAndCidr());
+        }
+    }
+
+    public function AsDotQuadAndCidrroviderProvider()
+    {
+        return [
+            [ Subnet::fromCidr(Address::fromString('0.0.0.0'), 0), '/', '0.0.0.0/0' ],
+            [ Subnet::fromCidr(Address::fromString('0.0.0.0'), 0), '-', '0.0.0.0-0' ],
+            [ Subnet::fromCidr(Address::fromString('10.0.0.0'), 24), '/', '10.0.0.0/24' ],
+        ];
+    }
+
+    /**
      * @dataProvider matchProvider
      * @covers ::match
      */
