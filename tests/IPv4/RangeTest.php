@@ -43,11 +43,11 @@ class RangeTest extends TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
      * @covers ::fromCount()
      */
     public function testFromCountInvalidArgumentException()
     {
+        $this->expectException(\InvalidArgumentException::class);
         $range = Range::fromCount(Address::fromString("0.0.0.0"), 0);
     }
 
@@ -194,11 +194,11 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider arrayAccessInvalidOffsetTypeProvider
-     * @expectedException InvalidArgumentException
      * @covers ::offsetExists
      */
     public function testArrayAccesInvalidOffsetType(Range $range, $offset)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $range[$offset];
     }
 
@@ -215,11 +215,11 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider arrayAccessOutOfBoundsProvider
-     * @expectedException OutOfBoundsException
      * @covers ::offsetExists
      */
     public function testArrayAccessOutOfBounds(Range $range, $offset)
     {
+        $this->expectException(\OutOfBoundsException::class);
         $range[$offset];
     }
 
@@ -261,12 +261,12 @@ class RangeTest extends TestCase
     }
 
     /**
-     * @expectedException BadMethodCallException
      * @covers ::offsetUnset
      */
     public function testArrayAccesUnsetImmutable()
     {
         $rangeFull = new Range(Address::fromString('0.0.0.0'), Address::fromString('255.255.255.255'));
+        $this->expectException(\BadMethodCallException::class);
         unset($rangeFull[1]);
     }
 
@@ -299,12 +299,12 @@ class RangeTest extends TestCase
     }
 
     /**
-     * @expectedException BadMethodCallException
      * @covers ::offsetSet
      */
     public function testArrayAccesSetImmutable()
     {
         $rangeFull = new Range(Address::fromString('0.0.0.0'), Address::fromString('255.255.255.255'));
+        $this->expectException(\BadMethodCallException::class);
         $rangeFull[1] = Address::fromString('0.0.0.1');
         $rangeFull[10] = Address::fromString('0.0.0.10');
         $rangeFull[0xffffffff] = Address::fromString('255.255.255.255');

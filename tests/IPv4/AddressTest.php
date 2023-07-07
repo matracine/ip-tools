@@ -22,7 +22,6 @@ class AddressTest extends TestCase
 {
 	/**
 	 * @dataProvider constructorOutOfBoundsProvider
-	 * @expectedException OutOfBoundsException
 	 *
      * @covers ::__construct
 	 * @param int $value
@@ -30,6 +29,7 @@ class AddressTest extends TestCase
 
 	public function testConstructorOutOfBounds(int $value)
 	{
+        $this->expectException(\OutOfBoundsException::class);
 		$address = new Address($value);
 	}
 
@@ -97,7 +97,6 @@ class AddressTest extends TestCase
     
     /**
      * @dataProvider fromArrayInvalidFormatProvider
-     * @expectedException InvalidArgumentException
      * @covers ::fromArray
      *
      * @param array $data
@@ -105,6 +104,7 @@ class AddressTest extends TestCase
 
     public function testFromArrayInvalidFormat(Array $data)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $address = Address::fromArray($data);
     }
 
@@ -124,7 +124,6 @@ class AddressTest extends TestCase
 
     /**
      * @dataProvider fromArrayOutOfBoundsProvider
-     * @expectedException OutOfBoundsException
      * @covers ::fromArray
     *
      * @param array $data
@@ -132,6 +131,7 @@ class AddressTest extends TestCase
 
     public function testFromArrayOutOfBounds(Array $data)
     {
+        $this->expectException(\OutOfBoundsException::class);
         $address = Address::fromArray($data);
     }
 
@@ -158,7 +158,7 @@ class AddressTest extends TestCase
         $address = Address::fromArray($data);
         $this->assertInstanceOf(Address::class, $address);
         $this->assertEquals((string)$address, $strExpected);
-        $this->assertInternalType('int', $address->int());      
+        $this->assertIsInt($address->int());      
         $this->assertEquals($address->int(), $intExpected);
     }
 
@@ -178,7 +178,6 @@ class AddressTest extends TestCase
 
     /**
      * @dataProvider fromStringInvalidFormatProvider
-     * @expectedException InvalidArgumentException
      * @covers ::fromString
      *
      * @param string $data
@@ -186,6 +185,7 @@ class AddressTest extends TestCase
 
     public function testFromStringInvalidFormat(string $data)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $address = Address::fromString($data);
     }
 
@@ -201,7 +201,6 @@ class AddressTest extends TestCase
 
     /**
      * @dataProvider fromStringOutOfBoundsProvider
-     * @expectedException OutOfBoundsException
      * @covers ::fromString
       *
      * @param string $data
@@ -209,6 +208,7 @@ class AddressTest extends TestCase
 
     public function testFromStringOutOfBounds(string $data)
     {
+        $this->expectException(\OutOfBoundsException::class);
         $address = Address::fromString($data);
     }
 
@@ -233,7 +233,7 @@ class AddressTest extends TestCase
         $address = Address::fromString($data);
         $this->assertInstanceOf(Address::class, $address);
         $this->assertEquals((string)$address, $strExpected);
-        $this->assertInternalType('int', $address->int());      
+        $this->assertIsInt($address->int());      
         $this->assertEquals($address->int(), $intExpected);
     }
 
@@ -298,58 +298,6 @@ class AddressTest extends TestCase
     {
         $this->assertEquals($expected, $address->int());
     }
-
-
-    /**
-     * @dataProvider fromCIDROutOfBoundsProvider
-     * @expectedException OutOfBoundsException
-     *
-     * @param int $data
-     */
-
-    // public function testFromCIDROutOfBounds(int $cidr)
-    // {
-    //     $address = Address::FromCIDR($cidr);
-    // }
-
-    // /**
-    //  * @dataProvider fromCIDRProvider
-    //  *
-    //  * @param int $data
-    //  */
-    // public function testFromCIDR(int $cidr, string $strExpected, int $intExpected)
-    // {
-    //     $address = Address::FromCIDR($cidr);
-    //     $this->assertInstanceOf(Address::class, $address);
-    //     $this->assertEquals((string)$address, $strExpected);
-    //     $this->assertEquals((string)$address,  $strExpected);
-    //     $this->assertInternalType('int', $address->int());        
-    //     $this->assertEquals($address->int(), $intExpected);
-    // }
-
-    // public function fromCIDROutOfBoundsProvider()
-    // {
-    //     return [
-    //         [ -10 ],
-    //         [ -2 ],
-    //         [ -1 ],
-    //         [ 33 ],
-    //         [ 34 ],
-    //         [ 75 ],
-    //     ];
-    // }
-
-    // public function fromCIDRProvider()
-    // {
-    //     return [
-    //         [ 0,  '0.0.0.0',                  0 ],
-    //         [ 1,  '128.0.0.0',       0x80000000 ],
-    //         [ 24, '255.255.255.0',   0xffffff00 ],
-    //         [ 30, '255.255.255.252', 0xfffffffc ],
-    //         [ 31, '255.255.255.254', 0xfffffffe ],
-    //         [ 32, '255.255.255.255', 0xffffffff ],
-    //     ];
-    // }
 
 	/**
 	 * @dataProvider matchProvider
@@ -568,11 +516,11 @@ class AddressTest extends TestCase
     }
 
     /**
-     * @expectedException OutOfBoundsException
      * @covers ::next  
      */
     public function testNextOutOfBounds()
     {
+        $this->expectException(\OutOfBoundsException::class);
         Address::fromString("255.255.255.255")->next();
     }
 
@@ -602,11 +550,11 @@ class AddressTest extends TestCase
     }
 
     /**
-     * @expectedException OutOfBoundsException
      * @covers ::previous  
      */
     public function testPreviousOutOfBounds()
     {
+        $this->expectException(\OutOfBoundsException::class);
         Address::fromString("0.0.0.0")->previous();
     }
 
@@ -621,11 +569,11 @@ class AddressTest extends TestCase
 
     /**
      * @dataProvider shiftOutOfBoundProvider  
-     * @expectedException OutOfBoundsException
      * @covers ::shift  
      */
     public function testShiftOutOfBounds(Address $address, int $offset)
     {
+        $this->expectException(\OutOfBoundsException::class);
         $address->shift($offset);
     }
 
@@ -662,62 +610,4 @@ class AddressTest extends TestCase
             [ Address::fromString("255.255.255.255"), -(0xffffffff), Address::fromString("0.0.0.0") ],
         ];
     }
-
-
-    /**
-     * @dataProvider asCidrInvalidFormatProvider
-     * @expectedException DomainException
-     */
-
-    // public function testAsCidrInvalidFormat(Address $address)
-    // {
-    //     $address->asCidr();
-    // }
-
-    /**
-     * @dataProvider asCidrProvider
-     */
-
-    // public function testAsCidr(Address $address, int $expected)
-    // {
-    //     $this->assertEquals($expected, $address->asCidr());
-    // }
-
-
-    /**
-     * @dataProvider asCidrProvider
-     */
-    // public function testIsNetmask(Address $address)
-    // {
-    //     $this->AssertTrue($address->isNetmask());
-    // }
-
-    /**
-     * @dataProvider asCidrInvalidFormatProvider
-     */
-    // public function testIsNotNetmask(Address $address)
-    // {
-    //     $this->AssertFalse($address->isNetmask());
-    // }
-
-    // public function asCidrInvalidFormatProvider()
-    // {
-    //     return [
-    //         [ Address::fromString("0.0.0.1") ],
-    //         [ Address::fromString("255.255.255.253") ],
-    //     ];
-    // }
-
-    // public function asCidrProvider()
-    // {
-    //     return [
-    //         [ Address::fromString("0.0.0.0"), 0 ],
-    //         [ Address::fromString("128.0.0.0"), 1 ],
-    //         [ Address::fromString("255.255.0.0"), 16 ],
-    //         [ Address::fromString("255.255.255.0"), 24 ],
-    //         [ Address::fromString("255.255.255.252"), 30 ],
-    //         [ Address::fromString("255.255.255.254"), 31 ],
-    //         [ Address::fromString("255.255.255.255"), 32 ],
-    //     ];
-    // }
 }

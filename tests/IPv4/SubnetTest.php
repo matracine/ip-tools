@@ -67,22 +67,12 @@ class SubnetTest extends TestCase
         ];
     }
 
-
-    // /**
-    //  * @covers ::__construct
-    //  * @expectedException InvalidArgumentException
-    //  */    
-    // public function testConstructInvalidArgument()
-    // {
-    //     $subnet = new Subnet(new Address(0), new Address(0));
-    // }
-
     /**
      * @covers ::__construct
-     * @expectedException RangeException
      */    
     public function testConstructRangeException()
     {
+        $this->expectException(\RangeException::class);
         $subnet = new Subnet(new Address(1), Netmask::fromString("255.255.255.252"));
     }
 
@@ -139,11 +129,11 @@ class SubnetTest extends TestCase
 
     /**
      * @dataProvider fromCidrRangeExceptionProvider
-     * @expectedException RangeException
      * @covers ::fromCidr
      */
     public function testFromCidrRangeException(Address $network, int $cidr)
     {
+        $this->expectException(\RangeException::class);
         Subnet::fromCidr($network, $cidr);
     }
 
@@ -179,14 +169,12 @@ class SubnetTest extends TestCase
 
     /**
      * @dataProvider fromStringInvalidArgumentProvider
-     * @expectedException InvalidArgumentException 
      * @covers ::fromString
      */
     public function testFromstringInvalidArgument(string $value)
     {
+        $this->expectException(\InvalidArgumentException::class);
         $subnet = Subnet::fromString($value);
-        // $this->AssertEquals($excpectedNetwork->int(), $subnet->getNetworkAddress()->int());
-        // $this->AssertEquals($expectedBroadcast->int(), $subnet->getBroadcastAddress()->int());
     }
 
     public function fromStringInvalidArgumentProvider()

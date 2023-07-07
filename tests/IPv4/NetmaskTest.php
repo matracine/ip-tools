@@ -23,11 +23,11 @@ class NetmaskTest extends TestCase
 {
     /**
      * @dataProvider ConstructOutOfBoundsProvider
-     * @expectedException OutOfBoundsException
      * @covers ::__construct
      */
     public function testConstructOutOfBounds(int $netmask)
     {
+        $this->expectException(\OutOfBoundsException::class);
         $netmask = new Netmask($netmask);
     }
 
@@ -41,11 +41,11 @@ class NetmaskTest extends TestCase
 
     /**
      * @dataProvider ConstructDomainExceptionProvider
-     * @expectedException DomainException
      * @covers ::__construct
      */
     public function testConstructDomainException(int $netmask)
     {
+        $this->expectException(\DomainException::class);
         $netmask = new Netmask($netmask);
     }
 
@@ -104,11 +104,11 @@ class NetmaskTest extends TestCase
 
     /**
      * @dataProvider fromCidrOutOfBoundExceptionProvider
-     * @expectedException OutOfBoundsException
      * @covers ::fromCidr
      */
     public function testFromCidrOutOfBoundException(int $cidr)
     {
+        $this->expectException(\OutOfBoundsException::class);
         Netmask::fromCidr($cidr);
     }
 
